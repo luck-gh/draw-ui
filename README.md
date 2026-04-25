@@ -1,8 +1,6 @@
-# ui-design — Claude Code Skill
+# draw-ui — AI UI Design Skill
 
-A [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills) that generates UI design mockups using **GPT Image 2** via the ZenMux API.
-
-The skill guides you through a structured onboarding flow — asking the right questions before generating — so the output actually matches your product's design language.
+A universal AI skill that generates UI design mockups using **GPT Image 2** via the ZenMux API. Works with any AI coding agent that supports the skills protocol.
 
 ---
 
@@ -15,18 +13,22 @@ The skill guides you through a structured onboarding flow — asking the right q
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI
+- An AI agent that supports the skills protocol (Claude Code, Cursor, etc.)
 - A **ZenMux API key** — set as `ZENMUX_API_KEY` env var, in `.env.local`, or in `~/.config/see/api_key`
 - Python 3 (auto-installs `google-genai` on first run)
 
 ## Installation
 
 ```bash
+npx skills add oil-oil/draw-ui
+```
+
+Or clone manually:
+
+```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/oil-oil/draw-ui ~/.claude/skills/ui-design
 ```
-
-That's it. Claude Code will auto-discover the skill from `~/.claude/skills/`.
 
 ## Usage
 

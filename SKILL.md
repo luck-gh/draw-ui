@@ -92,7 +92,7 @@ scripts/ask_draw.sh \
   --prompt "..."
 ```
 
-**`--frame` 注意**：走 `edit_image` API，不能并行，必须串行。偶发 disconnect 属正常，重试即可。
+**多张屏幕**：必须串行执行（一张完成再开下一张），不能并行。偶发 disconnect 属正常，重试即可。
 
 ---
 
