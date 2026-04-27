@@ -1,20 +1,22 @@
 ---
 name: ui-design
 description: >
-  Generate UI design mockups via ZenMux + GPT Image 2.
+  Generate UI design mockups and help reconstruct generated UI screenshots into HTML/CSS. Prefer built-in image generation when available; use ZenMux + GPT Image 2 only as fallback or for scripted local outputs.
   TRIGGER when the user says "生成图片", "画图", "设计 UI", "UI 设计", "出图", "create an image", "design a screen",
-  or when another skill needs image generation.
+  "landing page", "设计稿还原", "截图还原 HTML", "把图片复刻成网页", or when another skill needs image generation.
 ---
 
 # UI Design Skill
 
-Run `scripts/ask_draw.sh` to generate images. Default model: `openai/gpt-image-2`.
+Prefer the built-in image generation tool when it is available in the current agent/runtime. It is usually simpler, avoids provider drift, and produced landing page mockups at the same quality level as ZenMux in our comparison.
+
+Use `scripts/ask_draw.sh` only when built-in image generation is unavailable, when the user explicitly asks to use ZenMux, or when you need scripted local output paths. The script uses ZenMux. Default model: `openai/gpt-image-2`.
 
 ---
 
 ## Onboarding：开始前先问用户这些问题
 
-**不要直接生成。** 先用下面的问题引导用户，收集到足够信息再动手。
+如果用户只是泛泛地说“设计一个页面”，先用下面的问题引导用户，收集到足够信息再动手。用户已经给出明确页面、风格或参考图时，可以直接执行，不要为了流程感反复追问。
 
 ### 必问（缺少任何一项都会影响质量）
 
@@ -50,6 +52,14 @@ Run `scripts/ask_draw.sh` to generate images. Default model: `openai/gpt-image-2
 
 ---
 
+## 设计稿还原为 HTML 的素材策略
+
+当用户想把生成图、截图或设计稿还原成 HTML/CSS 时，先读取 `references/html-reconstruction.md`。核心原则：页面结构优先代码化；logo、品牌符号、复杂插画、3D/玻璃质感、半透明渐变等难复刻视觉元素要素材化。裁图只作为图生图参考和定位依据，最终放进 HTML 的复杂资产要用图生图重绘，再裁边、抠图和清理边缘。
+
+透明素材策略：厂商 logo、深色 wordmark、小号深色图标优先生成大尺寸纯白底素材，再用保守白底转 alpha；复杂彩色插画、hero 装饰、产品图优先绿幕或真实透明输出。不要把小 logo 和大插画塞进同一张素材板。
+
+---
+
 ## 构建提示词
 
 ### 两种经过验证有效的写法
@@ -79,6 +89,12 @@ Run `scripts/ask_draw.sh` to generate images. Default model: `openai/gpt-image-2
 ---
 
 ## 执行命令
+
+优先级：
+
+1. 有内置生图工具时，优先直接使用内置生图工具。
+2. 用户明确要求 ZenMux，或需要脚本化批量生成、本地固定输出路径时，再使用 `scripts/ask_draw.sh`。
+3. 内置工具和 ZenMux 质量接近时，选择内置工具，减少额外 provider 依赖。
 
 ```bash
 # 无参考图

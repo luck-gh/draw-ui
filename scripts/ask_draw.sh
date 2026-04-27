@@ -10,8 +10,8 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   python3 -m venv "$VENV_DIR"
 fi
 
-if ! "$PYTHON_BIN" -c "import google.genai" >/dev/null 2>&1; then
-  PIP_DISABLE_PIP_VERSION_CHECK=1 "$PYTHON_BIN" -m pip install --quiet --upgrade pip google-genai
+if ! "$PYTHON_BIN" -c "import google.genai, PIL" >/dev/null 2>&1; then
+  PIP_DISABLE_PIP_VERSION_CHECK=1 "$PYTHON_BIN" -m pip install --quiet --upgrade pip google-genai pillow
 fi
 
 # --frame <path>: prepend a frame reference image before all other --ref args.

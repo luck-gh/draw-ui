@@ -188,7 +188,7 @@ def render_response(*, response, output_path: Path) -> tuple[str, str]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate images via ZenMux + Gemini.")
+    parser = argparse.ArgumentParser(description="Generate images via ZenMux + GPT Image 2.")
     parser.add_argument("--type", choices=sorted(ASPECT_RATIOS.keys()), default="wide", help="Aspect ratio preset.")
     parser.add_argument("--prompt", required=True, help="Full prompt for image generation.")
     parser.add_argument("--ref", action="append", default=[], help="Reference image path or URL (repeatable).")
@@ -267,6 +267,14 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="draw-refs-") as tmp:
         tmp_dir = Path(tmp)
         refs = [resolve_ref(raw, tmp_dir) for raw in args.ref]
+        output_path = build_output_path(
+            output_arg=args.output,
+            image_type=args.type,
+            topic=args.name or "image",
+            explicit_name=args.name,
+            ext=".png",
+        )
+
         genai, types = load_genai()
         # OpenAI image models via ZenMux can take longer; bump timeout to 5 minutes.
         timeout = 300 if _uses_generate_images_api(args.model) else 120
@@ -274,14 +282,6 @@ def main() -> int:
             api_key=api_key,
             vertexai=True,
             http_options=types.HttpOptions(api_version="v1", base_url=args.base_url, timeout=timeout * 1000),
-        )
-
-        output_path = build_output_path(
-            output_arg=args.output,
-            image_type=args.type,
-            topic=args.name or "image",
-            explicit_name=args.name,
-            ext=".png",
         )
 
         if _uses_generate_images_api(args.model):
@@ -310,6 +310,7 @@ def main() -> int:
             "aspect_ratio": aspect_ratio,
             "prompt": args.prompt,
             "refs": [str(path) for path in refs],
+            "provider": "zenmux",
             "model": args.model,
             "base_url": args.base_url,
             "output_path": str(final_path),
