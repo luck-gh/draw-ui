@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw UI"
+  short_description: "Generate UI mockups and HTML reconstruction guidance"
+  default_prompt: "Use $draw-ui to design a polished UI mockup and, if needed, reconstruct it in HTML/CSS."

@@ -11,13 +11,12 @@ import sys
 import tempfile
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 DEFAULT_MODEL = os.getenv("DRAW_MODEL", "openai/gpt-image-2")
-DEFAULT_BASE_URL = os.getenv("ZENMUX_VERTEX_BASE_URL", "https://zenmux.ai/api/vertex-ai")
+DEFAULT_BASE_URL = os.getenv("DRAW_BASE_URL", "https://zenmux.ai/api/vertex-ai")
 DEFAULT_OUTPUT_ROOT = Path.home() / ".local" / "share" / "draw" / "outputs"
 DEFAULT_MIME = "image/png"
 
@@ -91,6 +90,13 @@ def guess_extension(mime_type: str | None) -> str:
     if guessed == ".jpe":
         return ".jpg"
     return guessed or ".png"
+
+
+def infer_provider(base_url: str) -> str:
+    host = urllib.parse.urlparse(base_url).netloc.lower()
+    if "zenmux" in host:
+        return "zenmux"
+    return "custom"
 
 
 # Type only controls aspect ratio, prompt is fully controlled by caller
@@ -188,7 +194,7 @@ def render_response(*, response, output_path: Path) -> tuple[str, str]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate images via ZenMux + GPT Image 2.")
+    parser = argparse.ArgumentParser(description="Generate images via a Google GenAI-compatible image endpoint.")
     parser.add_argument("--type", choices=sorted(ASPECT_RATIOS.keys()), default="wide", help="Aspect ratio preset.")
     parser.add_argument("--prompt", required=True, help="Full prompt for image generation.")
     parser.add_argument("--ref", action="append", default=[], help="Reference image path or URL (repeatable).")
@@ -276,7 +282,7 @@ def main() -> int:
         )
 
         genai, types = load_genai()
-        # OpenAI image models via ZenMux can take longer; bump timeout to 5 minutes.
+        # OpenAI image models through relay endpoints can take longer; bump timeout to 5 minutes.
         timeout = 300 if _uses_generate_images_api(args.model) else 120
         client = genai.Client(
             api_key=api_key,
@@ -310,7 +316,7 @@ def main() -> int:
             "aspect_ratio": aspect_ratio,
             "prompt": args.prompt,
             "refs": [str(path) for path in refs],
-            "provider": "zenmux",
+            "provider": infer_provider(args.base_url),
             "model": args.model,
             "base_url": args.base_url,
             "output_path": str(final_path),
